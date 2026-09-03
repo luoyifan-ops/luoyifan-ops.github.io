@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Reddit Mental Health: Database, Visualization &amp; Tool | Yifan Luo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="nav-name" href="index.html">Yifan Luo</a>
+    <a class="nav-back" href="index.html#projects">← All projects</a>
+  </div>
+</nav>
+
+<header class="case-hero">
+  <div class="wrap">
+    <div class="case-kicker">Data Engineering / Visualization</div>
+    <h1>Mapping Mental Health Conversations on Reddit</h1>
+    <div class="sub">A normalized database, an interactive visualization, and a command-line exploration tool — three connected projects built around the same public dataset</div>
+    <div class="case-meta">
+      <span><strong>Type</strong> Independent coursework, three connected projects</span>
+      <span><strong>Courses</strong> SI 507 (Python) · SI 649 (Information Visualization) · SQL / Database Design</span>
+      <span><strong>Institution</strong> University of Michigan School of Information</span>
+      <span><strong>Timeline</strong> Fall 2025</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="abstract-block">
+    <div class="abstract-label">Background</div>
+    <p class="measure">
+      Reddit is one of the largest public sources of naturalistic mental-health
+      discourse — people describing symptoms, coping strategies, and
+      support-seeking in their own words, inside dedicated communities like
+      r/Anxiety, r/depression, and r/SuicideWatch. All three projects below
+      are built on the same underlying dataset — the Kaggle
+      <em>Reddit Mental Health Dataset</em> — approached three different
+      ways: normalized into a queryable database, visualized as a year-long
+      narrative, and wrapped in a tool for open-ended exploration. Working
+      that way end-to-end raises three separate technical problems: how to
+      store and query the data efficiently, how to make its patterns visible
+      at a glance, and how to let someone explore it on their own terms
+      instead of only through a pre-built dashboard.
+    </p>
+
+    <svg viewBox="0 0 640 150" style="width:100%; max-width:620px; margin-top:22px;" role="img" aria-label="Three-step pipeline: SQL database feeding into Tableau visualization and a Python command-line tool.">
+      <rect x="10" y="35" width="170" height="70" rx="4" fill="var(--paper-raised)" stroke="var(--line)"></rect>
+      <text x="95" y="65" font-size="13" font-weight="600" text-anchor="middle" fill="var(--ink)">Relational Database</text>
+      <text x="95" y="83" font-size="11" text-anchor="middle" fill="var(--ink-soft)">MySQL · normalized schema</text>
+
+      <rect x="235" y="35" width="170" height="70" rx="4" fill="var(--paper-raised)" stroke="var(--line)"></rect>
+      <text x="320" y="65" font-size="13" font-weight="600" text-anchor="middle" fill="var(--ink)">Visualization</text>
+      <text x="320" y="83" font-size="11" text-anchor="middle" fill="var(--ink-soft)">Tableau · SI 649</text>
+
+      <rect x="460" y="35" width="170" height="70" rx="4" fill="var(--paper-raised)" stroke="var(--line)"></rect>
+      <text x="545" y="65" font-size="13" font-weight="600" text-anchor="middle" fill="var(--ink)">CLI Explorer</text>
+      <text x="545" y="83" font-size="11" text-anchor="middle" fill="var(--ink-soft)">Python · SI 507</text>
+
+      <line x1="180" y1="70" x2="232" y2="70" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)"></line>
+      <line x1="405" y1="70" x2="457" y2="70" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow)"></line>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="var(--accent)"></path>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Phase 1 — Relational Database (SQL / Database Design)</div>
+    <p class="measure">
+      Started from the same Kaggle Reddit Mental Health Dataset used across
+      all three projects, manually cleaned and labeled — post text, title,
+      score, subreddit, and psychological labels and categories I coded by
+      hand — for the subset covering r/anxiety, r/depression, and
+      r/mentalhealth. That flat file had subreddit names, labels, and
+      categories repeated across hundreds of rows with no consistent user
+      identifiers, so I normalized it into a star-schema MySQL database: a
+      central <code>posts</code> fact table with foreign keys out to
+      <code>subreddits</code>, <code>labels</code>, and <code>categories</code>
+      lookup tables, plus a synthetic <code>users</code> table since the
+      source data didn't include user identifiers at all.
+    </p>
+    <p class="measure" style="margin-top:12px;">
+      Rather than just present the schema, I framed the deliverable as a
+      client briefing — answering specific business questions in SQL for a
+      hypothetical stakeholder ("Borromean"):
+    </p>
+    <ul class="measure">
+      <li><strong>Which label appears most often?</strong> Posts labeled <code>symptom</code> dominate the dataset at 768 posts — people mostly describe what they're experiencing rather than coping strategies (528) or emotional triggers (284).</li>
+      <li><strong>Which subreddit has the highest engagement?</strong> r/anxiety has the highest average post score (3.12) among the three communities compared, ahead of r/depression and r/mentalhealth.</li>
+      <li><strong>Which labels correlate with higher scores?</strong> Posts tagged <code>daily_function</code> and <code>coping</code> earn the highest average engagement; posts tagged <code>rumination</code> get the least.</li>
+    </ul>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Phase 2 — Interactive Visualization (SI 649)</div>
+    <p class="measure">
+      Built an interactive Tableau-based site analyzing a full year (2021) of
+      posts across five subreddits — r/Anxiety, r/depression, r/lonely,
+      r/mentalhealth, r/SuicideWatch — sourced from the public Kaggle
+      <em>Reddit Mental Health Dataset</em>. The visualization walks the
+      viewer from "how much are people posting" to "how emotionally heavy is
+      what they're posting": a monthly activity heatmap by community, a
+      combined posting-volume-and-average-sentiment view, and a line chart of
+      monthly sentiment trends per subreddit.
+    </p>
+    <ul class="measure">
+      <li>Depression and SuicideWatch consistently show heavier average sentiment month over month, while Lonely and MentalHealth swing more sharply from one month to the next.</li>
+      <li>Higher posting volume doesn't track with more negative sentiment — some of the highest-volume communities (Depression, Anxiety) stay relatively stable in tone, while lower-volume Lonely shows sharper emotional spikes in specific months.</li>
+    </ul>
+    <p class="measure" style="margin-top:12px;">
+      <a href="https://luoyifan-ops.github.io/si649-final-viz/" target="_blank" rel="noopener">View the live interactive visualization →</a>
+    </p>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Phase 3 — Command-Line Exploration Tool (SI 507)</div>
+    <p class="measure">
+      Built a menu-driven Python application — the "Mental Health Reddit
+      Explorer" — on top of a separate, larger pull from the same Kaggle
+      dataset, split into a data layer (<code>final_dataset.py</code>) and an
+      interactive CLI (<code>final_main.py</code>). A JSON caching layer
+      means the source CSV is parsed once and reused across runs instead of
+      being re-read every session.
+    </p>
+    <ul class="measure">
+      <li>Keyword search across post titles and author-based post lookup, both case-insensitive.</li>
+      <li>A naive, lexicon-based sentiment scorer — deliberately a from-scratch word-list approach rather than an off-the-shelf ML sentiment model, in keeping with the course's data-structures focus — used to compare average tone by subreddit.</li>
+      <li>A subreddit network feature: each subreddit becomes a node, and an edge connects two subreddits when the Jaccard similarity of their posts' keyword sets clears a threshold, with network density and the highest-degree-centrality subreddit reported as summary statistics.</li>
+    </ul>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Implications</div>
+    <p class="measure">
+      The three pieces work as a pipeline rather than three unrelated
+      assignments: the database and the CLI's caching layer solve the "don't
+      redo the expensive part every time" problem, the Tableau visualization
+      answers the big-picture question, and the CLI tool lets someone go ask
+      their own narrower question — keyword by keyword, author by author,
+      community by community. Together they cover the full range from
+      structured storage, to guided storytelling, to open-ended exploration
+      of the same underlying subject.
+    </p>
+  </div>
+
+</div>
+
+<nav class="case-nav">
+  <div class="wrap">
+    <a href="case-rsv.html">← RSV Hospital Adoption Research</a>
+    <a href="index.html#projects">Back to all projects →</a>
+  </div>
+</nav>
+
+</body>
+<script src="script.js" defer></script>
+</html>

@@ -125,7 +125,7 @@ section.block.alt{background:var(--paper-raised); border-top:1px solid var(--lin
 }
 
 /* ---------- project cards ---------- */
-.proj-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+.proj-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:22px;}
 .proj-card{
   background:var(--paper-raised); border:1px solid var(--line); border-radius:3px;
   padding:26px; display:flex; flex-direction:column; height:100%;
