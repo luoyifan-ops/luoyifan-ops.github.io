@@ -21,7 +21,7 @@
     <h1>Association Between ADHD Medication Use and Tobacco Use Behaviors</h1>
     <div class="sub">An independent cross-sectional analysis of NSDUH 2023</div>
     <div class="case-meta">
-      <span><strong>Type</strong> Independent research, EPID 671</span>
+      <span><strong>Type</strong> Independent research, EPID 671 (Psychiatric Epidemiology)</span>
       <span><strong>Institution</strong> University of Michigan School of Public Health</span>
       <span><strong>Advisor</strong> Briana Mezuk, PhD</span>
       <span><strong>Timeline</strong> Nov 2025 – Apr 2026</span>
@@ -60,12 +60,110 @@
       <li><strong>Design:</strong> full complex-survey specification in R (the <code>survey</code> package) — analysis weights, variance strata, and primary sampling units, with Taylor series linearization for variance estimation.</li>
       <li><strong>Modeling:</strong> survey-weighted logistic regression adjusted for age, sex, race/ethnicity, and education.</li>
       <li><strong>Confounding control:</strong> a directed acyclic graph treating ADHD status, mental health, and socioeconomic status as unmeasured constructs, used to guide covariate selection and reason about the expected direction of exposure misclassification bias.</li>
+      <li>Analysis used a de-identified, public-use dataset exempt from further human subjects review.</li>
     </ul>
+    <p class="measure" style="margin-top:14px;">
+      The two groups being compared weren't demographically similar to begin
+      with: people reporting ADHD medication use were significantly younger,
+      more likely to be non-Hispanic White, and more likely to have some
+      college education than non-users (all p&lt;.001) — which is exactly
+      why the adjustment set and the DAG-guided confounding control mattered
+      for this analysis.
+    </p>
+
+    <svg class="forest" viewBox="0 0 650 300" role="img" aria-label="Grouped bar chart comparing the weighted age-category distribution of respondents with and without past-year ADHD medication use, showing the medication group skewed toward younger age categories.">
+      <line x1="55" y1="250.0" x2="625" y2="250.0" stroke="#E4E6DF" stroke-width="1"></line>
+      <text x="45" y="254.0" font-size="10" text-anchor="end" fill="var(--ink-faint)">0%</text>
+      <line x1="55" y1="173.3" x2="625" y2="173.3" stroke="#E4E6DF" stroke-width="1"></line>
+      <text x="45" y="177.3" font-size="10" text-anchor="end" fill="var(--ink-faint)">10%</text>
+      <line x1="55" y1="96.7" x2="625" y2="96.7" stroke="#E4E6DF" stroke-width="1"></line>
+      <text x="45" y="100.7" font-size="10" text-anchor="end" fill="var(--ink-faint)">20%</text>
+      <line x1="55" y1="20.0" x2="625" y2="20.0" stroke="#E4E6DF" stroke-width="1"></line>
+      <text x="45" y="24.0" font-size="10" text-anchor="end" fill="var(--ink-faint)">30%</text>
+
+      <rect x="60.7" y="227.8" width="18.7" height="22.2" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 1 — No ADHD medication: 2.9%"></rect>
+      <rect x="82.5" y="234.7" width="18.7" height="15.3" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 1 — ADHD medication: 2.0%"></rect>
+      <text x="80.9" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">1</text>
+      <rect x="112.5" y="225.5" width="18.7" height="24.5" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 2 — No ADHD medication: 3.2%"></rect>
+      <rect x="134.3" y="225.5" width="18.7" height="24.5" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 2 — ADHD medication: 3.2%"></rect>
+      <text x="132.7" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">2</text>
+      <rect x="164.3" y="226.2" width="18.7" height="23.8" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 3 — No ADHD medication: 3.1%"></rect>
+      <rect x="186.1" y="220.9" width="18.7" height="29.1" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 3 — ADHD medication: 3.8%"></rect>
+      <text x="184.5" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">3</text>
+      <rect x="216.2" y="218.6" width="18.7" height="31.4" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 4 — No ADHD medication: 4.1%"></rect>
+      <rect x="237.9" y="197.1" width="18.7" height="52.9" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 4 — ADHD medication: 6.9%"></rect>
+      <text x="236.4" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">4</text>
+      <rect x="268.0" y="215.5" width="18.7" height="34.5" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 5 — No ADHD medication: 4.5%"></rect>
+      <rect x="289.7" y="181.8" width="18.7" height="68.2" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 5 — ADHD medication: 8.9%"></rect>
+      <text x="288.2" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">5</text>
+      <rect x="319.8" y="227.8" width="18.7" height="22.2" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 6 — No ADHD medication: 2.9%"></rect>
+      <rect x="341.6" y="204.8" width="18.7" height="45.2" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 6 — ADHD medication: 5.9%"></rect>
+      <text x="340.0" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">6</text>
+      <rect x="371.6" y="204.8" width="18.7" height="45.2" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 7 — No ADHD medication: 5.9%"></rect>
+      <rect x="393.4" y="145.7" width="18.7" height="104.3" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 7 — ADHD medication: 13.6%"></rect>
+      <text x="391.8" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">7</text>
+      <rect x="423.4" y="191.7" width="18.7" height="58.3" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 8 — No ADHD medication: 7.6%"></rect>
+      <rect x="445.2" y="143.4" width="18.7" height="106.6" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 8 — ADHD medication: 13.9%"></rect>
+      <text x="443.6" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">8</text>
+      <rect x="475.2" y="78.3" width="18.7" height="171.7" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 9 — No ADHD medication: 22.4%"></rect>
+      <rect x="497.0" y="33.0" width="18.7" height="217.0" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 9 — ADHD medication: 28.3%"></rect>
+      <text x="495.5" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">9</text>
+      <rect x="527.1" y="79.0" width="18.7" height="171.0" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 10 — No ADHD medication: 22.3%"></rect>
+      <rect x="548.8" y="177.9" width="18.7" height="72.1" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 10 — ADHD medication: 9.4%"></rect>
+      <text x="547.3" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">10</text>
+      <rect x="578.9" y="88.2" width="18.7" height="161.8" fill="var(--accent)" class="bar-hover" data-tooltip="AGE3 category 11 — No ADHD medication: 21.1%"></rect>
+      <rect x="600.6" y="219.3" width="18.7" height="30.7" fill="var(--gold)" class="bar-hover" data-tooltip="AGE3 category 11 — ADHD medication: 4.0%"></rect>
+      <text x="599.1" y="266" font-size="10" text-anchor="middle" fill="var(--ink-faint)">11</text>
+
+      <text x="340" y="284" font-size="11" text-anchor="middle" fill="var(--ink-soft)">AGE3 category (youngest → oldest)</text>
+      <rect x="55" y="6" width="10" height="10" fill="var(--accent)"></rect>
+      <text x="70" y="15" font-size="10" fill="var(--ink-soft)">No ADHD medication</text>
+      <rect x="220" y="6" width="10" height="10" fill="var(--gold)"></rect>
+      <text x="235" y="15" font-size="10" fill="var(--ink-soft)">ADHD medication</text>
+    </svg>
+    <p class="measure" style="margin-top:8px; font-size:0.85rem; color:var(--ink-faint);">
+      Weighted % of each group within each age category (Table 1). Categories
+      9–11 are the oldest age bands and hold 65% of the non-medication group
+      versus 41% of the medication group — the medication group is
+      concentrated in the younger categories instead.
+    </p>
   </div>
 
   <div class="abstract-block">
     <div class="abstract-label">Findings</div>
     <p class="measure">Four model specifications were run against a pre-specified analysis plan: a main model, a secondary outcome, and two sensitivity analyses.</p>
+
+    <div style="display:flex; gap:36px; flex-wrap:wrap; align-items:flex-end; margin-top:18px;">
+      <svg viewBox="0 0 260 230" style="width:260px; flex-shrink:0;" role="img" aria-label="Bar chart showing current smoking prevalence of about 22% among respondents using ADHD medication versus about 13% among those not using it.">
+        <line x1="45" y1="190" x2="230" y2="190" stroke="#E4E6DF" stroke-width="1"></line>
+        <text x="35" y="194" font-size="9" text-anchor="end" fill="var(--ink-faint)">0%</text>
+        <line x1="45" y1="122" x2="230" y2="122" stroke="#E4E6DF" stroke-width="1"></line>
+        <text x="35" y="126" font-size="9" text-anchor="end" fill="var(--ink-faint)">10%</text>
+        <line x1="45" y1="54" x2="230" y2="54" stroke="#E4E6DF" stroke-width="1"></line>
+        <text x="35" y="58" font-size="9" text-anchor="end" fill="var(--ink-faint)">20%</text>
+
+        <rect x="85" y="39.4" width="55" height="150.6" fill="var(--gold)" class="bar-hover" data-tooltip="ADHD medication: current smoking ≈ 22% (approx., from poster Figure 2)"></rect>
+        <line x1="112.5" y1="20" x2="112.5" y2="60.8" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+        <line x1="105" y1="20" x2="120" y2="20" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+        <line x1="105" y1="60.8" x2="120" y2="60.8" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+        <text x="112.5" y="32" font-size="10" text-anchor="middle" fill="#fff" font-weight="600">~22%</text>
+        <text x="112.5" y="206" font-size="10" text-anchor="middle" fill="var(--ink-soft)">ADHD</text>
+        <text x="112.5" y="218" font-size="10" text-anchor="middle" fill="var(--ink-soft)">medication</text>
+
+        <rect x="165" y="101.6" width="55" height="88.4" fill="var(--accent)" class="bar-hover" data-tooltip="No ADHD medication: current smoking ≈ 13% (approx., from poster Figure 2)"></rect>
+        <line x1="192.5" y1="94.8" x2="192.5" y2="108.4" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+        <line x1="185" y1="94.8" x2="200" y2="94.8" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+        <line x1="185" y1="108.4" x2="200" y2="108.4" stroke="var(--ink-soft)" stroke-width="1.5"></line>
+        <text x="192.5" y="118" font-size="10" text-anchor="middle" fill="#fff" font-weight="600">~13%</text>
+        <text x="192.5" y="206" font-size="10" text-anchor="middle" fill="var(--ink-soft)">No ADHD</text>
+        <text x="192.5" y="218" font-size="10" text-anchor="middle" fill="var(--ink-soft)">medication</text>
+      </svg>
+      <p class="measure" style="max-width:320px; font-size:0.9rem;">
+        Before adjustment, current smoking is roughly <strong>1.7× more common</strong>
+        among people using ADHD medication than among those who aren't
+        — the unadjusted picture behind the crude and adjusted odds ratios below.
+      </p>
+    </div>
 
     <table class="results">
       <thead>
@@ -87,6 +185,7 @@
       <line class="ci-line" x1="368.1" y1="40" x2="452.2" y2="40"></line>
       <line class="ci-cap" x1="368.1" y1="35" x2="368.1" y2="45"></line>
       <line class="ci-cap" x1="452.2" y1="35" x2="452.2" y2="45"></line>
+      <circle class="point bar-hover" cx="410.8" cy="40" r="7" fill-opacity="0" data-tooltip="Main: current smoking — crude OR 1.995 (1.725–2.308), aOR 2.08 (1.78–2.42), p<.001"></circle>
       <circle class="point" cx="410.8" cy="40" r="4"></circle>
       <text x="460" y="44" font-size="11">aOR 2.08 (1.78–2.42)</text>
 
@@ -95,6 +194,7 @@
       <line class="ci-line" x1="311.9" y1="90" x2="423.6" y2="90"></line>
       <line class="ci-cap" x1="311.9" y1="85" x2="311.9" y2="95"></line>
       <line class="ci-cap" x1="423.6" y1="85" x2="423.6" y2="95"></line>
+      <circle class="point bar-hover" cx="368.1" cy="90" r="7" fill-opacity="0" data-tooltip="Secondary: nicotine dependence — crude OR 1.668 (1.370–2.030), aOR 1.78 (1.45–2.18), p<.001"></circle>
       <circle class="point" cx="368.1" cy="90" r="4"></circle>
       <text x="431" y="94" font-size="11">aOR 1.78 (1.45–2.18)</text>
 
@@ -103,6 +203,7 @@
       <line class="ci-line highlight" x1="268.9" y1="140" x2="360.2" y2="140"></line>
       <line class="ci-cap highlight" x1="268.9" y1="135" x2="268.9" y2="145"></line>
       <line class="ci-cap highlight" x1="360.2" y1="135" x2="360.2" y2="145"></line>
+      <circle class="point highlight bar-hover" cx="313.7" cy="140" r="7" fill-opacity="0" data-tooltip="Sensitivity — ever-smokers only — crude OR 1.447 (1.240–1.689), aOR 1.46 (1.24–1.73), p<.001 — the initiation-vs-persistence read"></circle>
       <circle class="point highlight" cx="313.7" cy="140" r="4"></circle>
       <text x="368" y="144" font-size="11" font-weight="600">aOR 1.46 (1.24–1.73)</text>
 
@@ -111,6 +212,7 @@
       <line class="ci-line" x1="443.1" y1="190" x2="551.8" y2="190"></line>
       <line class="ci-cap" x1="443.1" y1="185" x2="443.1" y2="195"></line>
       <line class="ci-cap" x1="551.8" y1="185" x2="551.8" y2="195"></line>
+      <circle class="point bar-hover" cx="497.1" cy="190" r="7" fill-opacity="0" data-tooltip="Sensitivity — ages 12–25 — crude OR 3.417 (2.850–4.095), aOR 2.85 (2.34–3.48), p<.001"></circle>
       <circle class="point" cx="497.1" cy="190" r="4"></circle>
       <text x="559" y="194" font-size="11">aOR 2.85 (2.34–3.48)</text>
 
@@ -164,5 +266,6 @@
   </div>
 </nav>
 
+<script src="script.js" defer></script>
 </body>
 </html>

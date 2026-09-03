@@ -227,3 +227,18 @@ table.results td.num{color:var(--ink); font-weight:500;}
 
 .case-nav{padding:50px 0 70px; border-top:1px solid var(--line);}
 .case-nav .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px;}
+
+/* ---------- chart tooltip ---------- */
+[data-tooltip]{cursor:pointer; transition:opacity .12s ease;}
+[data-tooltip]:hover{opacity:0.72;}
+.chart-tooltip{
+  position:fixed; z-index:200; pointer-events:none;
+  background:var(--ink); color:var(--paper);
+  font-family:var(--sans); font-size:0.8rem; font-weight:500;
+  padding:7px 11px; border-radius:3px;
+  opacity:0; transform:translateY(4px);
+  transition:opacity .12s ease, transform .12s ease;
+  max-width:260px; line-height:1.4;
+  box-shadow:0 6px 16px rgba(0,0,0,0.18);
+}
+.chart-tooltip.visible{opacity:1; transform:translateY(0);}
