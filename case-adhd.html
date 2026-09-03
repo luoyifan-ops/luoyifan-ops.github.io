@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — ADHD Medication Use &amp; Tobacco Behaviors | Yifan Luo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="nav-name" href="index.html">Yifan Luo</a>
+    <a class="nav-back" href="index.html#projects">← All projects</a>
+  </div>
+</nav>
+
+<header class="case-hero">
+  <div class="wrap">
+    <div class="case-kicker">HEOR / Real-World Evidence</div>
+    <h1>Association Between ADHD Medication Use and Tobacco Use Behaviors</h1>
+    <div class="sub">An independent cross-sectional analysis of NSDUH 2023</div>
+    <div class="case-meta">
+      <span><strong>Type</strong> Independent research, EPID 671</span>
+      <span><strong>Institution</strong> University of Michigan School of Public Health</span>
+      <span><strong>Advisor</strong> Briana Mezuk, PhD</span>
+      <span><strong>Timeline</strong> Nov 2025 – Apr 2026</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="abstract-block">
+    <div class="abstract-label">Background</div>
+    <p class="measure">
+      ADHD and substance use are known to co-occur, but most of the evidence
+      is drawn from adolescent samples. I wanted to know whether the
+      association holds at a population level across the full range of ages
+      the disorder affects, and — more specifically — whether it reflects
+      smoking <em>initiation</em> or <em>persistence</em>. That distinction
+      matters: it points to a different place in the care pathway to
+      intervene.
+    </p>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Data &amp; Methods</div>
+    <p class="measure">
+      I used the 2023 National Survey on Drug Use and Health (NSDUH), a
+      nationally representative, multistage probability sample fielded by
+      SAMHSA. The analytic sample was derived from an initial 56,705
+      respondents down to a final N of 56,609 after excluding missing
+      exposure and outcome records, weighted to represent roughly 283
+      million U.S. residents aged 12 and older.
+    </p>
+    <ul class="measure">
+      <li><strong>Exposure:</strong> past-year ADHD prescription medication use, used as a proxy for clinically managed ADHD status.</li>
+      <li><strong>Primary outcome:</strong> current smoking (past 30 days). <strong>Secondary outcome:</strong> nicotine dependence.</li>
+      <li><strong>Design:</strong> full complex-survey specification in R (the <code>survey</code> package) — analysis weights, variance strata, and primary sampling units, with Taylor series linearization for variance estimation.</li>
+      <li><strong>Modeling:</strong> survey-weighted logistic regression adjusted for age, sex, race/ethnicity, and education.</li>
+      <li><strong>Confounding control:</strong> a directed acyclic graph treating ADHD status, mental health, and socioeconomic status as unmeasured constructs, used to guide covariate selection and reason about the expected direction of exposure misclassification bias.</li>
+    </ul>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Findings</div>
+    <p class="measure">Four model specifications were run against a pre-specified analysis plan: a main model, a secondary outcome, and two sensitivity analyses.</p>
+
+    <table class="results">
+      <thead>
+        <tr><th>Model</th><th>Crude OR (95% CI)</th><th>Adjusted OR (95% CI)</th><th>p</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Main: current smoking</td><td class="num">1.995 (1.725–2.308)</td><td class="num">2.08 (1.78–2.42)</td><td class="num">&lt;.001</td></tr>
+        <tr><td>Secondary: nicotine dependence</td><td class="num">1.668 (1.370–2.030)</td><td class="num">1.78 (1.45–2.18)</td><td class="num">&lt;.001</td></tr>
+        <tr><td>Sensitivity: ever-smokers only</td><td class="num">1.447 (1.240–1.689)</td><td class="num">1.46 (1.24–1.73)</td><td class="num">&lt;.001</td></tr>
+        <tr><td>Sensitivity: ages 12–25</td><td class="num">3.417 (2.850–4.095)</td><td class="num">2.85 (2.34–3.48)</td><td class="num">&lt;.001</td></tr>
+      </tbody>
+    </table>
+
+    <svg class="forest" viewBox="0 0 640 250" role="img" aria-label="Forest plot of adjusted odds ratios across four model specifications, all above 1, with the ever-smoker sensitivity analysis showing the lowest estimate.">
+      <line class="null-line" x1="210" y1="15" x2="210" y2="210"></line>
+
+      <!-- Row 1: Main -->
+      <text class="row-label" x="15" y="36">Main analysis — current smoking</text>
+      <line class="ci-line" x1="368.1" y1="40" x2="452.2" y2="40"></line>
+      <line class="ci-cap" x1="368.1" y1="35" x2="368.1" y2="45"></line>
+      <line class="ci-cap" x1="452.2" y1="35" x2="452.2" y2="45"></line>
+      <circle class="point" cx="410.8" cy="40" r="4"></circle>
+      <text x="460" y="44" font-size="11">aOR 2.08 (1.78–2.42)</text>
+
+      <!-- Row 2: Secondary -->
+      <text class="row-label" x="15" y="86">Secondary — nicotine dependence</text>
+      <line class="ci-line" x1="311.9" y1="90" x2="423.6" y2="90"></line>
+      <line class="ci-cap" x1="311.9" y1="85" x2="311.9" y2="95"></line>
+      <line class="ci-cap" x1="423.6" y1="85" x2="423.6" y2="95"></line>
+      <circle class="point" cx="368.1" cy="90" r="4"></circle>
+      <text x="431" y="94" font-size="11">aOR 1.78 (1.45–2.18)</text>
+
+      <!-- Row 3: Sensitivity ever-smokers (highlight) -->
+      <text class="row-label" x="15" y="136">Sensitivity — ever-smokers only</text>
+      <line class="ci-line highlight" x1="268.9" y1="140" x2="360.2" y2="140"></line>
+      <line class="ci-cap highlight" x1="268.9" y1="135" x2="268.9" y2="145"></line>
+      <line class="ci-cap highlight" x1="360.2" y1="135" x2="360.2" y2="145"></line>
+      <circle class="point highlight" cx="313.7" cy="140" r="4"></circle>
+      <text x="368" y="144" font-size="11" font-weight="600">aOR 1.46 (1.24–1.73)</text>
+
+      <!-- Row 4: Sensitivity age 12-25 -->
+      <text class="row-label" x="15" y="186">Sensitivity — ages 12–25</text>
+      <line class="ci-line" x1="443.1" y1="190" x2="551.8" y2="190"></line>
+      <line class="ci-cap" x1="443.1" y1="185" x2="443.1" y2="195"></line>
+      <line class="ci-cap" x1="551.8" y1="185" x2="551.8" y2="195"></line>
+      <circle class="point" cx="497.1" cy="190" r="4"></circle>
+      <text x="559" y="194" font-size="11">aOR 2.85 (2.34–3.48)</text>
+
+      <!-- axis -->
+      <line x1="210" y1="210" x2="590" y2="210" stroke="#D9DCD3" stroke-width="1"></line>
+      <text class="axis-label" x="210" y="228" text-anchor="middle">1</text>
+      <text class="axis-label" x="400" y="228" text-anchor="middle">2</text>
+      <text class="axis-label" x="511.1" y="228" text-anchor="middle">3</text>
+      <text class="axis-label" x="590" y="228" text-anchor="middle">4</text>
+      <text class="axis-label" x="400" y="245" text-anchor="middle">Adjusted odds ratio (log scale)</text>
+    </svg>
+
+    <div class="insight">
+      <strong>The key read isn't the 2.08 — it's the drop to 1.46.</strong>
+      Restricting the sample to people who have ever smoked attenuates the
+      adjusted odds ratio from 2.08 to 1.46. That pattern suggests ADHD-related
+      traits act more on smoking <em>initiation</em> than on <em>persistence</em>
+      — consistent with prior longitudinal evidence that ADHD populations start
+      smoking earlier and progress faster. Comparing model specifications, not
+      just reporting a single effect size, is what surfaces that.
+    </div>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Limitations &amp; Implications</div>
+    <p class="measure">
+      The cross-sectional design can't establish temporal order or causation.
+      Using medication as a proxy for ADHD status likely introduces
+      non-differential misclassification, which typically biases estimates
+      toward the null — meaning the true association may be somewhat larger
+      than what's reported here. Residual confounding from unmeasured factors
+      (for example, prenatal exposures) remains possible. Practically, the
+      findings support integrating tobacco screening into routine ADHD
+      clinical management, with particular attention to the adolescent
+      window where initiation risk appears highest.
+    </p>
+    <p class="measure" style="margin-top:14px;">
+      Deliverables: a full manuscript (structured abstract, ~2,500-word main
+      text, 28 references, publication-formatted tables and figures), a
+      conference-style research poster, and an oral presentation — all
+      independently authored.
+    </p>
+  </div>
+
+</div>
+
+<nav class="case-nav">
+  <div class="wrap">
+    <a href="index.html#projects">← All projects</a>
+    <a href="case-thyroid.html">Next: Thyroid Cancer Multi-Omic Analysis →</a>
+  </div>
+</nav>
+
+</body>
+</html>

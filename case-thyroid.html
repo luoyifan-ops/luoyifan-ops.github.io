@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Multi-Omic Characterization of Thyroid Cancer | Yifan Luo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="nav-name" href="index.html">Yifan Luo</a>
+    <a class="nav-back" href="index.html#projects">← All projects</a>
+  </div>
+</nav>
+
+<header class="case-hero">
+  <div class="wrap">
+    <div class="case-kicker">Bioinformatics</div>
+    <h1>Multi-Omic Characterization of Thyroid Cancer Molecular Subtypes</h1>
+    <div class="sub">Bulk and single-cell transcriptomic analysis of BRAF/RAS-driven tumors</div>
+    <div class="case-meta">
+      <span><strong>Type</strong> Course project, BIOINF 545</span>
+      <span><strong>Institution</strong> University of Michigan</span>
+      <span><strong>Timeline</strong> Jan – Apr 2025</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="abstract-block">
+    <div class="abstract-label">Background</div>
+    <p class="measure">
+      Papillary thyroid cancers are usually classified by their driver
+      mutation — BRAF or RAS — but a meaningful subset of tumors carry
+      neither. These "non-BRAF/RAS" tumors are harder to place: are they a
+      genuinely distinct molecular entity, or do they simply lack a
+      detectable driver while still behaving like one of the two known
+      subtypes? The question matters for how they'd eventually be
+      risk-stratified.
+    </p>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Data &amp; Methods</div>
+    <ul class="measure">
+      <li>Analyzed bulk RNA-seq and SNP data from <strong>488 TCGA-THCA tumor samples</strong> to characterize transcriptional differences between BRAF-mutant, RAS-mutant, and non-BRAF/RAS tumors.</li>
+      <li>Ran differential expression analysis with PyDESeq2, identifying 968 BRAF-enriched and 429 RAS-enriched genes (log2FC &gt; 2.5, p &lt; 0.05).</li>
+      <li>Conducted Gene Set Enrichment Analysis (clusterProfiler, R), finding immune-response enrichment in BRAF tumors and mitochondrial / metal-ion stress pathways in RAS tumors.</li>
+      <li>Applied PCA and UMAP dimensionality reduction, then k-nearest-neighbor classification and neighborhood enrichment scoring to locate non-BRAF/RAS tumors relative to the two canonical subtypes.</li>
+      <li>Scored BRAF/RAS gene signatures across every tumor sample using single-sample GSEA (ssGSEA).</li>
+      <li>Validated the bulk-derived signatures in an independent single-cell cohort (<strong>GSE193581, 63,322 cells</strong>): QC filtering, normalization, and Harmony batch correction in Scanpy; subset to 9,667 malignant cells; cell-type annotation and signature scoring.</li>
+      <li>Trained a logistic regression model on the mutation profiles of non-BRAF/RAS samples to test whether co-occurring mutations (e.g. EIF1AX, CACNA1B) associate with BRAF- or RAS-like transcriptional phenotypes.</li>
+    </ul>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Findings</div>
+    <p class="measure">
+      Across both the bulk-tumor cohort and the independent single-cell
+      validation set, non-BRAF/RAS tumors consistently clustered
+      transcriptionally with BRAF-driven tumors — despite the absence of the
+      canonical driver mutation itself.
+    </p>
+    <div class="insight">
+      <strong>Absence of a driver mutation doesn't mean absence of the
+      driver's transcriptional program.</strong> The signature persisted
+      even after moving from bulk tissue to single malignant cells, which
+      rules out the simplest alternative explanation — that the bulk signal
+      was just diluted contamination from surrounding BRAF-mutant tissue.
+    </div>
+  </div>
+
+  <div class="abstract-block">
+    <div class="abstract-label">Implications</div>
+    <p class="measure">
+      Molecular subtype — not just driver-mutation status on its own — may
+      be the more clinically meaningful way to characterize these tumors.
+      That has downstream relevance for how "driver-negative" thyroid
+      cancers might eventually be risk-stratified or considered for
+      BRAF-pathway-adjacent treatment approaches.
+    </p>
+  </div>
+
+</div>
+
+<nav class="case-nav">
+  <div class="wrap">
+    <a href="case-adhd.html">← ADHD Medication Use &amp; Tobacco Behaviors</a>
+    <a href="case-rsv.html">Next: RSV Hospital Adoption Research →</a>
+  </div>
+</nav>
+
+</body>
+</html>
