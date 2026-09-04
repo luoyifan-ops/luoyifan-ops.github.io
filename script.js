@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.add('fullpage');
     var slideEls = Array.prototype.slice.call(slidesWrap.querySelectorAll('.slide'));
     var idx = 0;
-    var animating = false;
+    var direction = 0;   // -1 or +1 while mid-scrub, 0 when settled
+    var progress = 0;    // 0..1 fade progress toward slideEls[idx+direction]
+    var committing = false;
+    var settleTimer = null;
     var revealedSlides = new WeakSet();
 
     function revealSlide(slide) {
@@ -62,24 +65,53 @@ document.addEventListener('DOMContentLoaded', function () {
       if (link) link.classList.add('active');
     }
 
-    function activate(newIdx) {
-      if (newIdx < 0 || newIdx >= slideEls.length || newIdx === idx || animating) return;
-      animating = true;
-      slideEls[idx].classList.remove('active');
-      idx = newIdx;
-      var target = slideEls[idx];
-      target.classList.add('active');
-      var inner = target.querySelector('.slide-inner');
-      if (inner) inner.scrollTop = 0;
-      revealSlide(target);
-      updateDots();
-      history.replaceState(null, '', '#' + target.id);
-      setTimeout(function () { animating = false; }, 650);
-    }
-
+    // initial state
     slideEls[0].classList.add('active');
+    slideEls[0].style.opacity = 1;
     revealSlide(slideEls[0]);
     updateDots();
+
+    function applyProgress() {
+      slideEls[idx].style.opacity = String(1 - progress);
+      if (direction !== 0) {
+        var t = slideEls[idx + direction];
+        t.classList.add('active');
+        t.style.opacity = String(progress);
+      }
+    }
+
+    function finish(targetIdx) {
+      committing = true;
+      var from = slideEls[idx];
+      from.classList.add('settling');
+      if (targetIdx !== idx) {
+        var to = slideEls[targetIdx];
+        to.classList.add('active', 'settling');
+        // force reflow so the transition catches the change
+        void to.offsetWidth;
+        from.style.opacity = 0;
+        to.style.opacity = 1;
+      } else if (direction !== 0) {
+        var neighbor = slideEls[idx + direction];
+        neighbor.classList.add('settling');
+        neighbor.style.opacity = 0;
+        from.style.opacity = 1;
+      }
+      setTimeout(function () {
+        slideEls.forEach(function (s, i) {
+          s.classList.remove('settling');
+          if (i !== targetIdx) { s.classList.remove('active'); s.style.opacity = 0; }
+          else { s.style.opacity = 1; }
+        });
+        idx = targetIdx;
+        direction = 0; progress = 0; committing = false;
+        var inner = slideEls[idx].querySelector('.slide-inner');
+        if (inner) inner.scrollTop = 0;
+        revealSlide(slideEls[idx]);
+        updateDots();
+        history.replaceState(null, '', '#' + slideEls[idx].id);
+      }, 400);
+    }
 
     function canAdvance(dir) {
       var inner = slideEls[idx].querySelector('.slide-inner');
@@ -89,39 +121,97 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     window.addEventListener('wheel', function (e) {
-      if (animating) { e.preventDefault(); return; }
+      if (committing) { e.preventDefault(); return; }
+
       var dir = e.deltaY > 0 ? 1 : -1;
-      if (canAdvance(dir)) {
+
+      if (direction === 0) {
+        if (!canAdvance(dir)) return; // let the slide's own content scroll first
+        var target = idx + dir;
+        if (target < 0 || target >= slideEls.length) return;
+        direction = dir;
+      } else if (dir !== direction) {
+        // user reversed mid-scrub: ease back toward the current slide
+        progress = Math.max(0, progress - Math.abs(e.deltaY) / 450);
         e.preventDefault();
-        activate(idx + dir);
+        applyProgress();
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(function () { finish(progress >= 0.5 ? idx + direction : idx); }, 140);
+        return;
       }
+
+      e.preventDefault();
+      progress = Math.min(1, progress + Math.abs(e.deltaY) / 450);
+      applyProgress();
+
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(function () {
+        finish(progress >= 0.5 ? idx + direction : idx);
+      }, 140);
     }, { passive: false });
 
-    var touchStartY = 0;
-    window.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+    var touchStartY = 0, touchLastY = 0;
+    window.addEventListener('touchstart', function (e) {
+      touchStartY = touchLastY = e.touches[0].clientY;
+    }, { passive: true });
     window.addEventListener('touchmove', function (e) {
-      var dy = touchStartY - e.touches[0].clientY;
-      if (Math.abs(dy) < 40 || animating) return;
+      if (committing) return;
+      var y = e.touches[0].clientY;
+      var dy = touchLastY - y; // positive = finger moving up = scroll down
+      touchLastY = y;
+      if (Math.abs(dy) < 1) return;
       var dir = dy > 0 ? 1 : -1;
-      if (canAdvance(dir)) {
-        activate(idx + dir);
-        touchStartY = e.touches[0].clientY;
+
+      if (direction === 0) {
+        if (!canAdvance(dir)) return;
+        var target = idx + dir;
+        if (target < 0 || target >= slideEls.length) return;
+        direction = dir;
+      } else if (dir !== direction) {
+        progress = Math.max(0, progress - Math.abs(dy) / 220);
+        applyProgress();
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(function () { finish(progress >= 0.5 ? idx + direction : idx); }, 160);
+        return;
       }
+
+      progress = Math.min(1, progress + Math.abs(dy) / 220);
+      applyProgress();
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(function () {
+        finish(progress >= 0.5 ? idx + direction : idx);
+      }, 160);
     }, { passive: true });
 
     window.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); activate(idx + 1); }
-      if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); activate(idx - 1); }
+      if (committing) return;
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault();
+        if (idx + 1 < slideEls.length) { direction = 1; progress = 1; applyProgress(); finish(idx + 1); }
+      }
+      if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        if (idx - 1 >= 0) { direction = -1; progress = 1; applyProgress(); finish(idx - 1); }
+      }
     });
 
-    // any in-page hash link (nav, side-nav, hero CTA) drives the slide controller
+    function jumpTo(targetIdx) {
+      if (targetIdx === idx || committing) return;
+      direction = targetIdx > idx ? 1 : -1;
+      progress = 1;
+      slideEls[targetIdx].style.opacity = 0;
+      slideEls[targetIdx].classList.add('active');
+      applyProgress();
+      finish(targetIdx);
+    }
+
     document.querySelectorAll('a[href^="#"]').forEach(function (a) {
       a.addEventListener('click', function (e) {
         var targetId = a.getAttribute('href').slice(1);
         var i = slideEls.findIndex(function (s) { return s.id === targetId; });
         if (i !== -1) {
           e.preventDefault();
-          activate(i);
+          jumpTo(i);
         }
       });
     });

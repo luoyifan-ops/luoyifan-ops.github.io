@@ -141,19 +141,22 @@ section.block.alt{background:var(--paper-raised); border-top:1px solid var(--lin
 .proj-tag{font-size:0.78rem; color:var(--gold); font-weight:600; letter-spacing:0.02em;}
 .proj-front h3{font-size:1.15rem; margin-top:10px; line-height:1.3;}
 .proj-back{margin-top:14px;}
-.proj-back p{color:var(--ink-soft); font-size:0.92rem; margin:0;}
+.proj-back p{color:var(--ink-soft); font-size:0.9rem; line-height:1.55; margin:0;}
 .proj-back .go{margin-top:14px; font-size:0.88rem; font-weight:500; color:var(--accent);}
 .proj-card:hover .proj-face{border-color:var(--accent);}
 
 @media (hover:hover) and (pointer:fine){
-  .proj-card{height:220px;}
+  .proj-card{height:300px;}
   .proj-flip{
-    height:100%; transform-style:preserve-3d;
+    height:100%;
+    transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
     transition:transform .55s cubic-bezier(.2,.7,.3,1);
   }
   .proj-card:hover .proj-flip, .proj-card:focus-visible .proj-flip{transform:rotateY(180deg);}
   .proj-face{
-    position:absolute; inset:0; backface-visibility:hidden; justify-content:center;
+    position:absolute; inset:0; overflow:hidden;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    justify-content:center;
   }
   .proj-back{
     margin-top:0; transform:rotateY(180deg);
@@ -301,9 +304,9 @@ body.fullpage .site-nav{position:fixed; top:0; left:0; right:0; width:100%;}
   body.fullpage .slide{
     position:absolute; top:0; left:0; width:100%; height:100vh;
     opacity:0; visibility:hidden; pointer-events:none; z-index:1;
-    transition:opacity .6s cubic-bezier(.2,.7,.3,1);
   }
-  body.fullpage .slide.active{opacity:1; visibility:visible; pointer-events:auto; z-index:2;}
+  body.fullpage .slide.active{visibility:visible; pointer-events:auto; z-index:2;}
+  body.fullpage .slide.settling{transition:opacity .38s cubic-bezier(.2,.7,.3,1);}
   body.fullpage .slide-inner{
     height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch;
     padding-top:82px; display:flex; flex-direction:column; justify-content:center;
