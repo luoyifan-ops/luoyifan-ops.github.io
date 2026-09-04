@@ -23,3 +23,34 @@
 :root{--accent:var(--green);--ink-soft:var(--soft);--ink-faint:var(--faint);--paper-raised:var(--raised)}
 .site-nav{background:rgba(244,246,241,.9);background:color-mix(in srgb,var(--paper) 88%,transparent)}
 .site-nav .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
+
+/* Project preview motion: the visual state becomes more structured on hover. */
+.preview-adhd .chart-line{opacity:.35;transform:rotate(-13deg) scaleX(.82);transition:opacity .45s ease,transform .55s cubic-bezier(.22,.7,.3,1)}
+.preview-adhd .chart-point{transition:left .58s cubic-bezier(.22,.7,.3,1),top .58s cubic-bezier(.22,.7,.3,1),transform .3s ease}
+.preview-adhd .p1{left:12%;top:24%}.preview-adhd .p2{left:49%;top:57%}.preview-adhd .p3{left:78%;right:auto;top:18%}
+.project-adhd:hover .chart-line{opacity:1;transform:rotate(-13deg) scaleX(1)}
+.project-adhd:hover .p1{left:20%;top:47%;animation:line-float 1.9s ease-in-out .05s infinite}
+.project-adhd:hover .p2{left:49%;top:38%;animation:line-float 2.1s ease-in-out .22s infinite reverse}
+.project-adhd:hover .p3{left:76%;top:28%;animation:line-float 1.8s ease-in-out .38s infinite}
+
+.preview-thyroid:before,.preview-thyroid:after{content:"";position:absolute;width:76px;height:54px;border:1px solid rgba(39,102,83,.25);border-radius:50%;opacity:0;transform:scale(1.35);transition:opacity .4s ease,transform .58s cubic-bezier(.22,.7,.3,1)}
+.preview-thyroid:before{left:27%;top:31%}.preview-thyroid:after{left:53%;top:34%;border-color:rgba(182,132,50,.3)}
+.preview-thyroid .cluster{transition:left .62s cubic-bezier(.22,.7,.3,1),top .62s cubic-bezier(.22,.7,.3,1),transform .35s ease,background .35s ease}
+.project-thyroid:hover .preview-thyroid:before,.project-thyroid:hover .preview-thyroid:after{opacity:1;transform:scale(1)}
+.project-thyroid:hover .c1{left:31%;top:36%}.project-thyroid:hover .c2{left:39%;top:40%}.project-thyroid:hover .c3{left:35%;top:49%}
+.project-thyroid:hover .c4{left:58%;top:37%}.project-thyroid:hover .c5{left:66%;top:43%}.project-thyroid:hover .c6{left:59%;top:51%}
+.project-thyroid:hover .cluster{transform:scale(.94)}
+
+.preview-reddit .network{transition:left .68s cubic-bezier(.22,.7,.3,1),top .68s cubic-bezier(.22,.7,.3,1),transform .32s ease}
+.preview-reddit i{border-top-color:var(--gold);transition:border-color .35s ease}
+.project-reddit:hover .preview-reddit i{animation:orbit-ring 2.8s linear infinite}
+.project-reddit:hover .n1{left:46%;top:25%;animation:orbit-top 2.2s ease-in-out .1s infinite}
+.project-reddit:hover .n2{left:72%;top:43%;animation:orbit-side 2.3s ease-in-out .25s infinite}
+.project-reddit:hover .n3{left:47%;top:61%;animation:orbit-bottom 2.1s ease-in-out .4s infinite}
+.project-reddit:hover .n4{left:20%;top:43%;animation:orbit-side 2.4s ease-in-out .55s infinite reverse}
+
+@keyframes line-float{0%,100%{transform:translateY(-2px) scale(1.08)}50%{transform:translateY(3px) scale(1.14)}}
+@keyframes orbit-ring{from{transform:rotate(13deg)}to{transform:rotate(373deg)}}
+@keyframes orbit-top{0%,100%{transform:translateX(-4px)}50%{transform:translateX(5px)}}
+@keyframes orbit-bottom{0%,100%{transform:translateX(5px)}50%{transform:translateX(-5px)}}
+@keyframes orbit-side{0%,100%{transform:translateY(-4px)}50%{transform:translateY(5px)}}
