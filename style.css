@@ -241,7 +241,7 @@ table.results td.num{color:var(--ink); font-weight:500;}
 
 /* ---------- side dot nav ---------- */
 .side-nav{
-  position:fixed; right:22px; top:50%; transform:translateY(-50%);
+  position:fixed; left:22px; top:50%; transform:translateY(-50%);
   display:flex; flex-direction:column; align-items:center; gap:16px;
   z-index:15;
 }
