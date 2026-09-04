@@ -124,11 +124,36 @@ section.block.alt{background:var(--paper-raised); border-top:1px solid var(--lin
 }
 
 /* ---------- project cards (flip on hover, desktop) ---------- */
-.proj-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:22px;}
-#projects .wrap{max-width:1180px;}
+.proj-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:34px;}
+#projects .wrap{max-width:1240px;}
+#projects .block-head{margin-bottom:50px;}
 @media (max-width:700px){
-  .proj-grid{grid-template-columns:1fr;}
+  .proj-grid{grid-template-columns:1fr; gap:22px;}
   #projects .wrap{max-width:var(--max);}
+}
+
+/* Projects slide: big centered title settles into the normal heading,
+   then the grid rises in — only runs in fullpage desktop mode. */
+body.fullpage #projects .proj-intro{
+  position:absolute; inset:0; z-index:6;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--paper-raised);
+  font-family:var(--serif); font-weight:600; color:var(--ink);
+  font-size:clamp(3rem, 8vw, 6rem);
+  opacity:1; transform:scale(1);
+  transition:opacity .6s cubic-bezier(.22,.7,.3,1), transform .6s cubic-bezier(.22,.7,.3,1);
+  pointer-events:none;
+}
+body.fullpage #projects .proj-intro.hide{
+  opacity:0; transform:scale(.4) translate(-34vw,-32vh);
+}
+body.fullpage #projects .block-head{
+  opacity:0; transform:translateY(18px);
+  transition:opacity .6s cubic-bezier(.22,.7,.3,1), transform .6s cubic-bezier(.22,.7,.3,1);
+}
+body.fullpage #projects .block-head.show{opacity:1; transform:translateY(0);}
+@media (max-width:900px){
+  .proj-intro{display:none;}
 }
 
 .proj-card{

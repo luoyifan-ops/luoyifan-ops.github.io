@@ -49,10 +49,40 @@ document.addEventListener('DOMContentLoaded', function () {
     var committing = false;
     var settleTimer = null;
     var revealedSlides = new WeakSet();
+    var OFFSET = 78; // px of vertical travel during the fade — bumped up so the motion actually reads
+
+    function hardResetOthers(keepIdx) {
+      // defensive cleanup: guarantees no stray slide is left half-visible
+      // from an interrupted gesture (this is what caused the "ghost" bleed-through)
+      slideEls.forEach(function (s, i) {
+        if (i === keepIdx) return;
+        s.classList.remove('active', 'settling');
+        s.style.transition = 'none';
+        s.style.opacity = 0;
+        s.style.transform = '';
+        void s.offsetWidth;
+        s.style.transition = '';
+      });
+    }
 
     function revealSlide(slide) {
       if (revealedSlides.has(slide)) return;
       revealedSlides.add(slide);
+
+      if (slide.id === 'projects') {
+        var intro = slide.querySelector('.proj-intro');
+        var head = slide.querySelector('.block-head');
+        setTimeout(function () {
+          if (intro) intro.classList.add('hide');
+          if (head) head.classList.add('show');
+        }, 600);
+        var kids = slide.querySelectorAll('.reveal');
+        kids.forEach(function (child, i) {
+          setTimeout(function () { child.classList.add('visible'); }, 1050 + i * 110);
+        });
+        return;
+      }
+
       var kids = slide.querySelectorAll('.reveal');
       kids.forEach(function (child, i) {
         setTimeout(function () { child.classList.add('visible'); }, 120 + i * 90);
@@ -71,8 +101,6 @@ document.addEventListener('DOMContentLoaded', function () {
     revealSlide(slideEls[0]);
     updateDots();
 
-    var OFFSET = 46; // px of vertical travel during the fade
-
     function applyProgress() {
       var exitY = direction > 0 ? -OFFSET : OFFSET;
       slideEls[idx].style.opacity = String(1 - progress);
@@ -89,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function finish(targetIdx) {
       committing = true;
       var from = slideEls[idx];
-      from.classList.add('settling');
       var dir = targetIdx > idx ? 1 : (targetIdx < idx ? -1 : direction);
+      from.classList.add('settling');
       if (targetIdx !== idx) {
         var to = slideEls[targetIdx];
         to.classList.add('active', 'settling');
@@ -108,12 +136,10 @@ document.addEventListener('DOMContentLoaded', function () {
         from.style.transform = 'translateY(0px)';
       }
       setTimeout(function () {
-        slideEls.forEach(function (s, i) {
-          s.classList.remove('settling');
-          s.style.transform = '';
-          if (i !== targetIdx) { s.classList.remove('active'); s.style.opacity = 0; }
-          else { s.style.opacity = 1; }
-        });
+        slideEls.forEach(function (s) { s.classList.remove('settling'); });
+        hardResetOthers(targetIdx);
+        slideEls[targetIdx].classList.add('active');
+        slideEls[targetIdx].style.opacity = 1;
         idx = targetIdx;
         direction = 0; progress = 0; committing = false;
         var inner = slideEls[idx].querySelector('.slide-inner');
@@ -121,7 +147,25 @@ document.addEventListener('DOMContentLoaded', function () {
         revealSlide(slideEls[idx]);
         updateDots();
         history.replaceState(null, '', '#' + slideEls[idx].id);
-      }, 440);
+      }, 480);
+    }
+
+    // begins a transition that isn't driven by a continuous gesture
+    // (keyboard, nav click, side-nav dot) — sets the incoming slide's
+    // starting position instantly, then lets finish() animate it in.
+    function directTransition(targetIdx) {
+      if (targetIdx < 0 || targetIdx >= slideEls.length || targetIdx === idx || committing) return;
+      hardResetOthers(idx);
+      direction = targetIdx > idx ? 1 : -1;
+      var enterY = direction > 0 ? OFFSET : -OFFSET;
+      var to = slideEls[targetIdx];
+      to.style.transition = 'none';
+      to.style.opacity = 0;
+      to.style.transform = 'translateY(' + enterY + 'px)';
+      to.classList.add('active');
+      void to.offsetWidth;
+      to.style.transition = '';
+      finish(targetIdx);
     }
 
     function canAdvance(dir) {
@@ -140,10 +184,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!canAdvance(dir)) return; // let the slide's own content scroll first
         var target = idx + dir;
         if (target < 0 || target >= slideEls.length) return;
+        hardResetOthers(idx);
         direction = dir;
       } else if (dir !== direction) {
         // user reversed mid-scrub: ease back toward the current slide
-        progress = Math.max(0, progress - Math.abs(e.deltaY) / 450);
+        progress = Math.max(0, progress - Math.abs(e.deltaY) / 380);
         e.preventDefault();
         applyProgress();
         clearTimeout(settleTimer);
@@ -152,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       e.preventDefault();
-      progress = Math.min(1, progress + Math.abs(e.deltaY) / 450);
+      progress = Math.min(1, progress + Math.abs(e.deltaY) / 380);
       applyProgress();
 
       clearTimeout(settleTimer);
@@ -177,16 +222,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!canAdvance(dir)) return;
         var target = idx + dir;
         if (target < 0 || target >= slideEls.length) return;
+        hardResetOthers(idx);
         direction = dir;
       } else if (dir !== direction) {
-        progress = Math.max(0, progress - Math.abs(dy) / 220);
+        progress = Math.max(0, progress - Math.abs(dy) / 200);
         applyProgress();
         clearTimeout(settleTimer);
         settleTimer = setTimeout(function () { finish(progress >= 0.5 ? idx + direction : idx); }, 160);
         return;
       }
 
-      progress = Math.min(1, progress + Math.abs(dy) / 220);
+      progress = Math.min(1, progress + Math.abs(dy) / 200);
       applyProgress();
       clearTimeout(settleTimer);
       settleTimer = setTimeout(function () {
@@ -196,27 +242,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('keydown', function (e) {
       if (committing) return;
-      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-        e.preventDefault();
-        if (idx + 1 < slideEls.length) { direction = 1; progress = 1; applyProgress(); finish(idx + 1); }
-      }
-      if (e.key === 'ArrowUp' || e.key === 'PageUp') {
-        e.preventDefault();
-        if (idx - 1 >= 0) { direction = -1; progress = 1; applyProgress(); finish(idx - 1); }
-      }
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); directTransition(idx + 1); }
+      if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); directTransition(idx - 1); }
     });
-
-    function jumpTo(targetIdx) {
-      if (targetIdx === idx || committing) return;
-      direction = targetIdx > idx ? 1 : -1;
-      progress = 1;
-      var enterY = direction > 0 ? OFFSET : -OFFSET;
-      slideEls[targetIdx].style.opacity = 0;
-      slideEls[targetIdx].style.transform = 'translateY(' + enterY + 'px)';
-      slideEls[targetIdx].classList.add('active');
-      applyProgress();
-      finish(targetIdx);
-    }
 
     document.querySelectorAll('a[href^="#"]').forEach(function (a) {
       a.addEventListener('click', function (e) {
@@ -224,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var i = slideEls.findIndex(function (s) { return s.id === targetId; });
         if (i !== -1) {
           e.preventDefault();
-          jumpTo(i);
+          directTransition(i);
         }
       });
     });
