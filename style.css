@@ -54,3 +54,7 @@
 @keyframes orbit-top{0%,100%{transform:translateX(-4px)}50%{transform:translateX(5px)}}
 @keyframes orbit-bottom{0%,100%{transform:translateX(5px)}50%{transform:translateX(-5px)}}
 @keyframes orbit-side{0%,100%{transform:translateY(-4px)}50%{transform:translateY(5px)}}
+
+/* Keep the settled nodes still: avoids a transform handoff after position easing. */
+.project-adhd:hover .p1,.project-adhd:hover .p2,.project-adhd:hover .p3,
+.project-reddit:hover .n1,.project-reddit:hover .n2,.project-reddit:hover .n3,.project-reddit:hover .n4{animation:none}
