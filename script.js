@@ -71,12 +71,18 @@ document.addEventListener('DOMContentLoaded', function () {
     revealSlide(slideEls[0]);
     updateDots();
 
+    var OFFSET = 46; // px of vertical travel during the fade
+
     function applyProgress() {
+      var exitY = direction > 0 ? -OFFSET : OFFSET;
       slideEls[idx].style.opacity = String(1 - progress);
+      slideEls[idx].style.transform = 'translateY(' + (exitY * progress) + 'px)';
       if (direction !== 0) {
         var t = slideEls[idx + direction];
+        var enterY = direction > 0 ? OFFSET : -OFFSET;
         t.classList.add('active');
         t.style.opacity = String(progress);
+        t.style.transform = 'translateY(' + (enterY * (1 - progress)) + 'px)';
       }
     }
 
@@ -84,22 +90,27 @@ document.addEventListener('DOMContentLoaded', function () {
       committing = true;
       var from = slideEls[idx];
       from.classList.add('settling');
+      var dir = targetIdx > idx ? 1 : (targetIdx < idx ? -1 : direction);
       if (targetIdx !== idx) {
         var to = slideEls[targetIdx];
         to.classList.add('active', 'settling');
-        // force reflow so the transition catches the change
-        void to.offsetWidth;
+        void to.offsetWidth; // force reflow so the transition catches the change
         from.style.opacity = 0;
+        from.style.transform = 'translateY(' + (dir > 0 ? -OFFSET : OFFSET) + 'px)';
         to.style.opacity = 1;
+        to.style.transform = 'translateY(0px)';
       } else if (direction !== 0) {
         var neighbor = slideEls[idx + direction];
         neighbor.classList.add('settling');
         neighbor.style.opacity = 0;
+        neighbor.style.transform = 'translateY(' + (direction > 0 ? OFFSET : -OFFSET) + 'px)';
         from.style.opacity = 1;
+        from.style.transform = 'translateY(0px)';
       }
       setTimeout(function () {
         slideEls.forEach(function (s, i) {
           s.classList.remove('settling');
+          s.style.transform = '';
           if (i !== targetIdx) { s.classList.remove('active'); s.style.opacity = 0; }
           else { s.style.opacity = 1; }
         });
@@ -110,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         revealSlide(slideEls[idx]);
         updateDots();
         history.replaceState(null, '', '#' + slideEls[idx].id);
-      }, 400);
+      }, 440);
     }
 
     function canAdvance(dir) {
@@ -199,7 +210,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (targetIdx === idx || committing) return;
       direction = targetIdx > idx ? 1 : -1;
       progress = 1;
+      var enterY = direction > 0 ? OFFSET : -OFFSET;
       slideEls[targetIdx].style.opacity = 0;
+      slideEls[targetIdx].style.transform = 'translateY(' + enterY + 'px)';
       slideEls[targetIdx].classList.add('active');
       applyProgress();
       finish(targetIdx);
