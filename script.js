@@ -1,231 +1,146 @@
-// Lightweight hover/tap tooltips for chart elements.
-// Any SVG element with a data-tooltip attribute gets a floating label
-// that follows the pointer on hover, and a tap-to-reveal on touch devices.
 document.addEventListener('DOMContentLoaded', function () {
-  var tooltip = document.createElement('div');
-  tooltip.className = 'chart-tooltip';
-  document.body.appendChild(tooltip);
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function showAt(x, y, text) {
-    tooltip.textContent = text;
-    tooltip.style.left = (x + 14) + 'px';
-    tooltip.style.top = (y + 14) + 'px';
-    tooltip.classList.add('visible');
-  }
-  function hide() {
-    tooltip.classList.remove('visible');
-  }
-
-  document.querySelectorAll('[data-tooltip]').forEach(function (el) {
-    var text = el.getAttribute('data-tooltip');
-
-    el.addEventListener('mouseenter', function (e) {
-      showAt(e.clientX, e.clientY, text);
-    });
-    el.addEventListener('mousemove', function (e) {
-      showAt(e.clientX, e.clientY, text);
-    });
-    el.addEventListener('mouseleave', hide);
-
-    el.addEventListener('touchstart', function (e) {
-      var t = e.touches[0];
-      showAt(t.clientX, t.clientY, text);
-      window.clearTimeout(el._tttimer);
-      el._tttimer = window.setTimeout(hide, 2200);
-    }, { passive: true });
-  });
-
-  // ---------- fullpage slide controller (desktop only, index.html) ----------
-  var slidesWrap = document.querySelector('.slides');
-  var isFullpage = !!slidesWrap && window.matchMedia('(min-width:901px)').matches;
-  var sideLinks = document.querySelectorAll('.side-nav a');
-
-  if (isFullpage) {
-    document.body.classList.add('fullpage');
-    var slideEls = Array.prototype.slice.call(slidesWrap.querySelectorAll('.slide'));
-    var idx = 0;
-    var committing = false;
-    var revealedSlides = new WeakSet();
-    var OFFSET = 44;
-    var WHEEL_THRESHOLD = 70;
-    var wheelTotal = 0;
-    var wheelResetTimer = null;
-
-    function hardResetOthers(keepIdx) {
-      // defensive cleanup: guarantees no stray slide is left half-visible
-      // from an interrupted gesture (this is what caused the "ghost" bleed-through)
-      slideEls.forEach(function (s, i) {
-        if (i === keepIdx) return;
-        s.classList.remove('active', 'settling');
-        s.style.transition = 'none';
-        s.style.opacity = 0;
-        s.style.transform = '';
-        s.style.transition = '';
-      });
+  // Meaningful chart annotations on the case-study pages.
+  var tooltipTargets = document.querySelectorAll('[data-tooltip]');
+  if (tooltipTargets.length) {
+    var tooltip = document.createElement('div');
+    tooltip.className = 'chart-tooltip';
+    document.body.appendChild(tooltip);
+    function showTooltip(x, y, text) {
+      tooltip.textContent = text;
+      tooltip.style.left = Math.min(x + 14, window.innerWidth - 280) + 'px';
+      tooltip.style.top = (y + 14) + 'px';
+      tooltip.classList.add('visible');
     }
-
-    function revealSlide(slide) {
-      if (revealedSlides.has(slide)) return;
-      revealedSlides.add(slide);
-
-      var kids = slide.querySelectorAll('.reveal');
-      kids.forEach(function (child) {
-        child.classList.add('visible');
-      });
-    }
-
-    function updateDots() {
-      sideLinks.forEach(function (a) { a.classList.remove('active'); });
-      var link = document.querySelector('.side-nav a[href="#' + slideEls[idx].id + '"]');
-      if (link) link.classList.add('active');
-    }
-
-    // initial state
-    slideEls[0].classList.add('active');
-    slideEls[0].style.opacity = 1;
-    revealSlide(slideEls[0]);
-    updateDots();
-
-    function directTransition(targetIdx) {
-      if (targetIdx < 0 || targetIdx >= slideEls.length || targetIdx === idx || committing) return;
-      committing = true;
-      hardResetOthers(idx);
-      var from = slideEls[idx];
-      var direction = targetIdx > idx ? 1 : -1;
-      var to = slideEls[targetIdx];
-      to.style.transition = 'none';
-      to.style.opacity = 0;
-      to.style.transform = 'translateY(' + (direction > 0 ? OFFSET : -OFFSET) + 'px)';
-      to.classList.add('active');
-      revealSlide(to);
-      void to.offsetWidth;
-      to.style.transition = '';
-      from.classList.add('settling');
-      to.classList.add('settling');
-      from.style.opacity = 0;
-      from.style.transform = 'translateY(' + (direction > 0 ? -OFFSET : OFFSET) + 'px)';
-      to.style.opacity = 1;
-      to.style.transform = 'translateY(0px)';
-
-      setTimeout(function () {
-        idx = targetIdx;
-        hardResetOthers(idx);
-        to.classList.remove('settling');
-        to.classList.add('active');
-        to.style.opacity = 1;
-        to.style.transform = 'translateY(0px)';
-        var inner = to.querySelector('.slide-inner');
-        if (inner) inner.scrollTop = direction > 0 ? 0 : Math.max(0, inner.scrollHeight - inner.clientHeight);
-        committing = false;
-        updateDots();
-        history.replaceState(null, '', '#' + to.id);
-      }, 440);
-    }
-
-    function canAdvance(dir) {
-      var inner = slideEls[idx].querySelector('.slide-inner');
-      if (!inner || inner.scrollHeight <= inner.clientHeight + 2) return true;
-      if (dir > 0) return inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 2;
-      return inner.scrollTop <= 2;
-    }
-
-    window.addEventListener('wheel', function (e) {
-      if (committing) { e.preventDefault(); return; }
-
-      if (e.deltaY === 0) return;
-      var dir = e.deltaY > 0 ? 1 : -1;
-      if (!canAdvance(dir)) { wheelTotal = 0; return; }
-      var target = idx + dir;
-      if (target < 0 || target >= slideEls.length) return;
-      e.preventDefault();
-      wheelTotal = wheelTotal && Math.sign(wheelTotal) !== dir ? 0 : wheelTotal;
-      wheelTotal += e.deltaY;
-      clearTimeout(wheelResetTimer);
-      wheelResetTimer = setTimeout(function () { wheelTotal = 0; }, 180);
-      if (Math.abs(wheelTotal) >= WHEEL_THRESHOLD) {
-        wheelTotal = 0;
-        directTransition(target);
-      }
-    }, { passive: false });
-
-    var touchLastY = 0, touchTotal = 0;
-    window.addEventListener('touchstart', function (e) {
-      touchLastY = e.touches[0].clientY;
-      touchTotal = 0;
-    }, { passive: true });
-    window.addEventListener('touchmove', function (e) {
-      if (committing) { e.preventDefault(); return; }
-      var y = e.touches[0].clientY;
-      var dy = touchLastY - y;
-      touchLastY = y;
-      if (Math.abs(dy) < 1) return;
-      var dir = dy > 0 ? 1 : -1;
-      if (!canAdvance(dir)) { touchTotal = 0; return; }
-      var target = idx + dir;
-      if (target < 0 || target >= slideEls.length) return;
-      e.preventDefault();
-      touchTotal += dy;
-      if (Math.abs(touchTotal) >= 50) directTransition(target);
-    }, { passive: false });
-
-    window.addEventListener('keydown', function (e) {
-      if (committing) return;
-      var dir = (e.key === 'ArrowDown' || e.key === 'PageDown') ? 1 :
-        ((e.key === 'ArrowUp' || e.key === 'PageUp') ? -1 : 0);
-      if (!dir) return;
-      e.preventDefault();
-      var inner = slideEls[idx].querySelector('.slide-inner');
-      if (!canAdvance(dir) && inner) {
-        inner.scrollBy({ top: dir * inner.clientHeight * 0.8, behavior: 'smooth' });
-        return;
-      }
-      directTransition(idx + dir);
-    });
-
-    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        var targetId = a.getAttribute('href').slice(1);
-        var i = slideEls.findIndex(function (s) { return s.id === targetId; });
-        if (i !== -1) {
-          e.preventDefault();
-          directTransition(i);
-        }
-      });
+    tooltipTargets.forEach(function (el) {
+      el.addEventListener('pointerenter', function (e) { showTooltip(e.clientX, e.clientY, el.getAttribute('data-tooltip')); });
+      el.addEventListener('pointermove', function (e) { showTooltip(e.clientX, e.clientY, el.getAttribute('data-tooltip')); });
+      el.addEventListener('pointerleave', function () { tooltip.classList.remove('visible'); });
     });
   }
 
-  // ---------- scroll reveal for boxed content (non-fullpage / mobile fallback) ----------
-  var revealEls = document.querySelectorAll('.reveal');
-  if (revealEls.length && !isFullpage) {
-    var revealIO = new IntersectionObserver(function (entries) {
+  var revealEls = document.querySelectorAll('.reveal-group');
+  if (reducedMotion || !('IntersectionObserver' in window)) {
+    revealEls.forEach(function (el) { el.classList.add('visible'); });
+  } else {
+    var revealObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          revealIO.unobserve(entry.target);
+          revealObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-    revealEls.forEach(function (el) { revealIO.observe(el); });
+    }, { threshold: 0.14, rootMargin: '0px 0px -7% 0px' });
+    revealEls.forEach(function (el) { revealObserver.observe(el); });
   }
 
-  // ---------- side dot nav: active section highlight (non-fullpage) ----------
-  if (sideLinks.length && !isFullpage) {
-    var sectionIds = Array.prototype.map.call(sideLinks, function (a) {
-      return a.getAttribute('href').slice(1);
-    });
-    var sectionEls = sectionIds
-      .map(function (id) { return document.getElementById(id); })
-      .filter(Boolean);
+  // Whole-word rotation keeps the headline alive without a typewriter effect.
+  var rotator = document.querySelector('.rotator');
+  if (rotator && !reducedMotion) {
+    var words = ['evidence.', 'strategy.', 'decisions.'];
+    var wordIndex = 0;
+    window.setInterval(function () {
+      var current = rotator.querySelector('span');
+      current.className = 'out';
+      window.setTimeout(function () {
+        wordIndex = (wordIndex + 1) % words.length;
+        var next = document.createElement('span');
+        next.textContent = words[wordIndex];
+        next.className = 'in';
+        rotator.replaceChildren(next);
+      }, 300);
+    }, 3000);
+  }
 
-    var navIO = new IntersectionObserver(function (entries) {
+  // Animate only the three hero proof points, once.
+  var counters = document.querySelectorAll('.count');
+  if (counters.length && !reducedMotion && 'IntersectionObserver' in window) {
+    var countObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          sideLinks.forEach(function (a) { a.classList.remove('active'); });
-          var link = document.querySelector('.side-nav a[href="#' + entry.target.id + '"]');
-          if (link) link.classList.add('active');
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var target = Number(el.dataset.count);
+        var suffix = el.dataset.suffix || '';
+        var start = performance.now();
+        function tick(now) {
+          var progress = Math.min(1, (now - start) / 850);
+          var eased = 1 - Math.pow(1 - progress, 3);
+          var value = Math.round(target * eased);
+          el.textContent = (el.dataset.format === 'comma' ? value.toLocaleString('en-US') : value) + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
         }
+        requestAnimationFrame(tick);
+        countObserver.unobserve(el);
       });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sectionEls.forEach(function (el) { navIO.observe(el); });
+    }, { threshold: 0.7 });
+    counters.forEach(function (el) { countObserver.observe(el); });
   }
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.snap-section[id]'));
+  var sideLinks = Array.prototype.slice.call(document.querySelectorAll('.side-nav a'));
+  var progressFill = document.querySelector('.side-progress span');
+  var timeline = document.querySelector('.timeline');
+  var timelineItems = Array.prototype.slice.call(document.querySelectorAll('.timeline-item'));
+  var heroBackdrop = document.querySelector('.hero-backdrop');
+  var scrollQueued = false;
+
+  function updateScrollEffects() {
+    scrollQueued = false;
+    var viewportMid = window.scrollY + window.innerHeight * 0.46;
+    var activeIndex = 0;
+    sections.forEach(function (section, index) {
+      if (section.offsetTop <= viewportMid) activeIndex = index;
+    });
+    sideLinks.forEach(function (link, index) {
+      link.classList.toggle('active', index === activeIndex);
+      link.classList.toggle('complete', index < activeIndex);
+      if (index === activeIndex) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+    if (progressFill && sideLinks.length > 1) {
+      progressFill.style.height = (activeIndex / (sideLinks.length - 1) * 100) + '%';
+    }
+
+    if (timeline) {
+      var rect = timeline.getBoundingClientRect();
+      var timelineProgress = Math.max(0, Math.min(1, (window.innerHeight * 0.58 - rect.top) / Math.max(1, rect.height)));
+      timeline.style.setProperty('--timeline-progress', (timelineProgress * 100) + '%');
+      var nearest = 0;
+      var nearestDistance = Infinity;
+      timelineItems.forEach(function (item, index) {
+        var distance = Math.abs(item.getBoundingClientRect().top - window.innerHeight * 0.42);
+        if (distance < nearestDistance) { nearest = index; nearestDistance = distance; }
+      });
+      timelineItems.forEach(function (item, index) { item.classList.toggle('is-current', index === nearest); });
+    }
+
+    if (heroBackdrop && !reducedMotion && window.scrollY < window.innerHeight * 1.2) {
+      heroBackdrop.style.transform = 'translate3d(0,' + (window.scrollY * 0.14) + 'px,0)';
+    }
+  }
+
+  function queueScrollEffects() {
+    if (!scrollQueued) { scrollQueued = true; requestAnimationFrame(updateScrollEffects); }
+  }
+  if (sections.length) {
+    updateScrollEffects();
+    window.addEventListener('scroll', queueScrollEffects, { passive: true });
+    window.addEventListener('resize', queueScrollEffects);
+  }
+
+  // Short directional fallback for project-to-case navigation.
+  document.querySelectorAll('a.project-card').forEach(function (link) {
+    link.addEventListener('click', function (event) {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || reducedMotion) return;
+      event.preventDefault();
+      var destination = link.href;
+      document.querySelectorAll('.project-card').forEach(function (card) {
+        if (card !== link) card.style.opacity = '.35';
+      });
+      link.style.transform = 'translateY(-8px) scale(1.015)';
+      document.querySelector('main').classList.add('page-leaving');
+      window.setTimeout(function () { window.location.href = destination; }, 300);
+    });
+  });
 });
