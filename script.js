@@ -168,11 +168,9 @@ document.addEventListener('DOMContentLoaded', function () {
       finish(targetIdx);
     }
 
-    function canAdvance(dir) {
-      var inner = slideEls[idx].querySelector('.slide-inner');
-      if (!inner) return true;
-      if (dir > 0) return inner.scrollTop + inner.clientHeight >= inner.scrollHeight - 2;
-      return inner.scrollTop <= 2;
+    function canAdvance() {
+      return true; // every wheel/touch tick advances the page — no more getting stuck
+                   // scrolling through a tall section before it'll let you continue
     }
 
     window.addEventListener('wheel', function (e) {
@@ -181,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var dir = e.deltaY > 0 ? 1 : -1;
 
       if (direction === 0) {
-        if (!canAdvance(dir)) return; // let the slide's own content scroll first
+        if (!canAdvance()) return; // let the slide's own content scroll first
         var target = idx + dir;
         if (target < 0 || target >= slideEls.length) return;
         hardResetOthers(idx);
@@ -219,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var dir = dy > 0 ? 1 : -1;
 
       if (direction === 0) {
-        if (!canAdvance(dir)) return;
+        if (!canAdvance()) return;
         var target = idx + dir;
         if (target < 0 || target >= slideEls.length) return;
         hardResetOthers(idx);
